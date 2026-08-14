@@ -1,19 +1,3 @@
-// Copyright (C) 2023 Parity Technologies (UK) Ltd.
-// SPDX-License-Identifier: Apache-2.0
-
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// 	http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-//! Contains the [`ConstEncodedLen`] trait.
 
 use crate::{alloc::boxed::Box, MaxEncodedLen};
 use core::{
@@ -24,9 +8,6 @@ use core::{
 };
 use impl_trait_for_tuples::impl_for_tuples;
 
-/// Types that have a constant encoded length. This implies [`MaxEncodedLen`].
-///
-/// No derive macros is provided; instead use an empty implementation like for a marker trait.
 pub trait ConstEncodedLen: MaxEncodedLen {}
 
 #[impl_for_tuples(18)]
@@ -34,7 +15,6 @@ impl ConstEncodedLen for Tuple {}
 
 impl<T: ConstEncodedLen, const N: usize> ConstEncodedLen for [T; N] {}
 
-/// Mark `T` or `T<S>` as `CEL`.
 macro_rules! mark_cel {
 	( $($n:ident <$t:ident>),+ ) => {
 		$(
@@ -67,15 +47,12 @@ mark_cel!(PhantomData<T>);
 mark_cel!(Box<T>);
 mark_cel!(Range<T>, RangeInclusive<T>);
 
-// `Option`, `Result` and `Compact` are sum types, therefore not `CEL`.
-
 #[cfg(test)]
 mod tests {
 	use super::*;
 	use crate::Encode;
 	use proptest::prelude::*;
 
-	/// Test that some random instances of `T` have encoded len `T::max_encoded_len()`.
 	macro_rules! test_cel_compliance {
 		( $( $t:ty ),+ ) => {
 			$(

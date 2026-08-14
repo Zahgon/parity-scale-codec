@@ -1,41 +1,15 @@
-// Copyright 2017, 2018 Parity Technologies
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 use crate::{Decode, Error};
 
-/// The error message returned when `decode_all` fails.
 pub(crate) const DECODE_ALL_ERR_MSG: &str = "Input buffer has still data left after decoding!";
 
-/// Extension trait to [`Decode`] that ensures that the given input data is consumed completely
-/// while decoding.
 pub trait DecodeAll: Sized {
-	/// Decode `Self` and consume all of the given input data.
-	///
-	/// If not all data is consumed, an error is returned.
+	
 	fn decode_all(input: &mut &[u8]) -> Result<Self, Error>;
 }
 
 impl<T: Decode> DecodeAll for T {
-	fn decode_all(input: &mut &[u8]) -> Result<Self, Error> {
-		let res = T::decode(input)?;
-
-		if input.is_empty() {
-			Ok(res)
-		} else {
-			Err(DECODE_ALL_ERR_MSG.into())
-		}
-	}
+	fn decode_all(input: &mut &[u8]) -> Result<Self, Error> { panic!("STUB: not implemented") }
 }
 
 #[cfg(test)]

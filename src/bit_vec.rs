@@ -1,18 +1,3 @@
-// Copyright 2019 Parity Technologies
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-//! `BitVec` specific serialization.
 
 use crate::{
 	codec::decode_vec_with_len, Compact, Decode, DecodeWithMemTracking, Encode, EncodeLike, Error,
@@ -23,72 +8,31 @@ use bitvec::{
 };
 
 impl<O: BitOrder, T: BitStore + Encode> Encode for BitSlice<T, O> {
-	fn encode_to<W: Output + ?Sized>(&self, dest: &mut W) {
-		let bits = self.len();
-		assert!(
-			bits <= ARCH32BIT_BITSLICE_MAX_BITS,
-			"Attempted to encode a BitSlice with too many bits.",
-		);
-		Compact(bits as u32).encode_to(dest);
-
-		// Iterate over chunks
-		for chunk in self.chunks(core::mem::size_of::<T>() * 8) {
-			let mut element = T::ZERO;
-			element.view_bits_mut::<O>()[..chunk.len()].copy_from_bitslice(chunk);
-			element.encode_to(dest);
-		}
-	}
+	fn encode_to<W: Output + ?Sized>(&self, dest: &mut W) { panic!("STUB: not implemented") }
 }
 
 impl<O: BitOrder, T: BitStore + Encode> Encode for BitVec<T, O> {
-	fn encode_to<W: Output + ?Sized>(&self, dest: &mut W) {
-		self.as_bitslice().encode_to(dest)
-	}
+	fn encode_to<W: Output + ?Sized>(&self, dest: &mut W) { panic!("STUB: not implemented") }
 }
 
 impl<O: BitOrder, T: BitStore + Encode> EncodeLike for BitVec<T, O> {}
 
-/// Equivalent of `BitStore::MAX_BITS` on 32bit machine.
 const ARCH32BIT_BITSLICE_MAX_BITS: usize = 0x1fff_ffff;
 
 impl<O: BitOrder, T: BitStore + Decode> Decode for BitVec<T, O> {
-	fn decode<I: Input>(input: &mut I) -> Result<Self, Error> {
-		<Compact<u32>>::decode(input).and_then(move |Compact(bits)| {
-			// Otherwise it is impossible to store it on 32bit machine.
-			if bits as usize > ARCH32BIT_BITSLICE_MAX_BITS {
-				return Err("Attempt to decode a BitVec with too many bits".into());
-			}
-			let vec = decode_vec_with_len(input, bitvec::mem::elts::<T>(bits as usize))?;
-
-			let mut result = Self::try_from_vec(vec).map_err(|_| {
-				Error::from(
-					"UNEXPECTED ERROR: `bits` is less or equal to
-					`ARCH32BIT_BITSLICE_MAX_BITS`; So BitVec must be able to handle the number of
-					segment needed for `bits` to be represented; qed",
-				)
-			})?;
-
-			assert!(bits as usize <= result.len());
-			result.truncate(bits as usize);
-			Ok(result)
-		})
-	}
+	fn decode<I: Input>(input: &mut I) -> Result<Self, Error> { panic!("STUB: not implemented") }
 }
 
 impl<O: BitOrder, T: BitStore + Decode> DecodeWithMemTracking for BitVec<T, O> {}
 
 impl<O: BitOrder, T: BitStore + Encode> Encode for BitBox<T, O> {
-	fn encode_to<W: Output + ?Sized>(&self, dest: &mut W) {
-		self.as_bitslice().encode_to(dest)
-	}
+	fn encode_to<W: Output + ?Sized>(&self, dest: &mut W) { panic!("STUB: not implemented") }
 }
 
 impl<O: BitOrder, T: BitStore + Encode> EncodeLike for BitBox<T, O> {}
 
 impl<O: BitOrder, T: BitStore + Decode> Decode for BitBox<T, O> {
-	fn decode<I: Input>(input: &mut I) -> Result<Self, Error> {
-		Ok(BitVec::<T, O>::decode(input)?.into())
-	}
+	fn decode<I: Input>(input: &mut I) -> Result<Self, Error> { panic!("STUB: not implemented") }
 }
 
 impl<O: BitOrder, T: BitStore + Decode> DecodeWithMemTracking for BitBox<T, O> {}
